@@ -8,9 +8,8 @@ const uploadBlog = asyncHandler(async (req, res) => {
   try {
     const files = req.files;
      // Assuming you're expecting a file named 'blogImage'
-    const blogImageLocalPath = files && files.blogImage ? files.blogImage[0].path.substring(files.blogImage[0].path.indexOf('public//') + 8) : null;
-    const pdfFileForBlogLocalPath = files && files.pdfFileForBlog ? files.pdfFileForBlog[0].path.substring(files.pdfFileForBlog[0].path.indexOf('public//') + 8) : null;
-
+    const blogImageLocalPath = files?.blogImage?.[0]?.path;
+    const pdfFileForBlogLocalPath = files?.pdfFileForBlog?.[0]?.path;
     const blogResponse = await blogService.uploadBlog(
         req.body,
         blogImageLocalPath,
@@ -53,8 +52,8 @@ const updateUploadedBlog = asyncHandler(async (req, res) => {
   try {
     const files = req.files;
      // Assuming you're expecting a file named 'blogImage'
-    const blogImageLocalPath = files && files.blogImage ? files.blogImage[0].path.substring(files.blogImage[0].path.indexOf('public//') + 8) : null;
-    const pdfFileForBlogLocalPath = files && files.pdfFileForBlog ? files.pdfFileForBlog[0].path.substring(files.pdfFileForBlog[0].path.indexOf('public//') + 8) : null;
+    const blogImageLocalPath = files.blogImage?.[0]?.path;
+    const pdfFileForBlogLocalPath = files.pdfFileForBlog?.[0]?.path;
     
     const blogResponse = await blogService.updateUploadedBlog(
         req.body,
@@ -99,9 +98,29 @@ const deleteUploadedBlog = asyncHandler(async (req, res) => {
   }
 });
 
+
+const getSingleBlog = asyncHandler(async (req, res) => {
+  try {
+      const blogResponse = await blogService.getSingleBlog(req.params.blogId);
+      return res
+         .status(200)
+         .json(
+              new apiResponse(200, blogResponse, "Blog Fetched Successfully!"),
+          );
+  } catch (error) {
+      return res
+         .status(500)
+         .json(
+              new apiError({ statusCode: error.statusCode, message: error.message }),
+          );
+  }
+})
+
+
 export default {
     uploadBlog,
     getUploadedBlog,
     updateUploadedBlog,
-    deleteUploadedBlog
+    deleteUploadedBlog,
+    getSingleBlog
 }

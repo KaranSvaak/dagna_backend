@@ -2,7 +2,7 @@ import userService from "../services/user.service.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { apiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { validatePassword } from "../helper/helper.functions.js"
+import { validatePassword } from "../helpers/helper.methods.js"
 
 //Register User
 const registerUser = asyncHandler(async (req, res) => {
@@ -110,8 +110,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   try {
     const { body, params, files } = req;
     const response = files?.avatar
-      ? await userService.updateUserInfo(body, params.id, files.avatar)
-      : await userService.updateUserInfo(body, params.id);
+      ? await userService.updateUserProfile(body, params.id, files.avatar)
+      : await userService.updateUserProfile(body, params.id);
     return res
       .status(200).json(
         new apiResponse(200, response, "User's info updated successfully", true));
@@ -165,6 +165,24 @@ const updateUserStatus = asyncHandler(async (req, res) => {
     return res
       .status(200)
       .json(new apiResponse(200, response, "User status updated successfully"));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(
+        new apiError({ statusCode: error.statusCode, message: error.message })
+      );
+  }
+});
+
+const updateUserRole = asyncHandler(async (req, res) => {
+  //TODO: Get all Users from the DB
+  
+  const { body, params } = req;
+  try {
+    const response = await userService.updateUserRole(body, params.userId);
+    return res
+      .status(200)
+      .json(new apiResponse(200, response, "User role updated successfully"));
   } catch (error) {
     return res
       .status(500)
@@ -297,5 +315,6 @@ export {
   getSearchedUsers,
   refreshAccessToken,
   changeCurrentUserPassword,
-  updateUserAvatar
+  updateUserAvatar,
+  updateUserRole
 };

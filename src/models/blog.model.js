@@ -1,25 +1,53 @@
 import mongoose, { Schema } from "mongoose";
 
 const blogSchema = new Schema({
-    blogAuthorName: {
-        type: String,
-        required: true
+    en:{
+        blogAuthorName: {
+            type: String,
+            required: true
+        },
+        blogTitle: {
+            type: String,
+            required: true
+        },
+        blogDescription: {
+            type: String,
+            required: true
+        }
     },
-    blogTitle: {
-        type: String,
-        required: true
+    fr:{
+        blogAuthorName: {
+            type: String,
+            required: true
+        },
+        blogTitle: {
+            type: String,
+            required: true
+        },
+        blogDescription: {
+            type: String,
+            required: true
+        }
     },
-    blogDescription: {
-        type: String,
-        required: true
+    de:{
+        blogAuthorName: {
+            type: String,
+            required: true
+        },
+        blogTitle: {
+            type: String,
+            required: true
+        },
+        blogDescription: {
+            type: String,
+            required: true
+        }
     },
     blogImage: {
-        type: String,
-        required: true  
+        type: String
     },
     pdfFileForBlog: {
-        type: String,
-        required: true
+        type: String
     },
     isActive: {
         type: Boolean,

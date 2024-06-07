@@ -27,11 +27,7 @@ const userSchema = new Schema(
       type: Number,
       default: 0
     },
-    role: {
-      type: String,
-      enum: ['admin', 'partner', 'volunteer', "user"],
-      default: 'user' // Set default role as volunteer
-    },
+    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', default: null },
     refreshToken: {
       type: String,
     },

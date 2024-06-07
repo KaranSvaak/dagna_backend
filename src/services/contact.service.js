@@ -1,5 +1,5 @@
 import { isValidObjectId } from "mongoose";
-import { validateEmail } from "../helper/helper.functions.js";
+import { validateEmail } from "../helpers/helper.methods.js";
 import Contact from "../models/contact.model.js";
 import { apiError } from "../utils/apiError.js";
 import { sendEmail } from "../utils/send.email.js";
@@ -9,12 +9,12 @@ const createContact = async (contactDetails) => {
   const { firstName, lastName, phoneNumber, email, message } = contactDetails;
 
   if (!firstName || !phoneNumber || !email || !message) {
-    throw new apiError(400, "Missing Fiels Are Required");
+    throw new apiError(400, "Missing Fields Are Required");
   }
 
-  const validateEmailCheck = validateEmail(email);
-  if (!validateEmailCheck) {
-    throw new apiError(400, "Provide valid email");
+  //If email address is not valid, throw error
+  if (!validateEmail(email)) {
+    throw new apiError(400, "Provide valid email address");
   }
 
   const newContact = new Contact({
@@ -27,24 +27,51 @@ const createContact = async (contactDetails) => {
 
   const savedContact = await newContact.save();
   if (!savedContact) {
-    throw new apiError(400, "Something Went Wrong");
+    throw new apiError(400, "Something Went Wrong at the time of data saving");
   }
 
   const subject = "New Website Inquiry";
 
-  const mesgForAdminFromUser = `<p> Hello admin,</p>
-  <p>You have received a new inquiry from your website:</p>
-  <P>Name: ${firstName} ${lastName}</P>
-  <p>Email: ${email}</p>
-  <p>Phone Number: ${phoneNumber}</p>
-  <p>Message: ${message}</p>
+  const adminMessage = `
+  <p>Hello,</p>
 
-   <p>Regards,</p>
-   <p>Dagna.De</p>
+  <p>You have received a new inquiry from your website: </p>
+
+  <b>Name:</b> ${firstName} ${lastName}<br>
+  <b>Phone Number:</b> ${phoneNumber}<br>
+  <b>Email:</b>${email}<br>
+  <b>Message:</b> ${message? message: ''}<br><br>
+
+  <p>Regards,</p>
+  Dagna.De
   `;
 
   // Send the email for new contact user
-  await sendEmail(email, subject, mesgForAdminFromUser);
+  await sendEmail('info@dagna.de', subject, adminMessage);
+
+  // Constructing the email message for User
+  const userSubject = "Thank you for contacting us!";
+  const userMessage = `<p>Dear ${firstName},</p>
+  
+    <p>Thank you for reaching out to us through our contact form. We have received your message and will get back to you as soon as possible.</p>
+    <p>Here are the details you provided:</p>
+
+    <b>Name:</b> ${firstName} ${lastName}<br>
+    <b>Phone Number:</b> ${phoneNumber}<br>
+    <b>Email:</b> ${email}<br>
+    <b>Message:</b> ${message? message: ''}<br><br>
+    
+    <p>We appreciate your interest in our [company/product/service]. Rest assured, your inquiry is important to us, and we will do our best to address it promptly.</p>
+
+    <p>If you have any further questions or concerns, feel free to reply to below contact details</p>
+    
+    <p>Best regards,</p>
+
+    Dagna.De<br>
+    Email: info@dagna.de<br>`
+
+    //Send email to the User
+    await sendEmail(email, userSubject, userMessage);    
 
   return savedContact;
 };
@@ -61,10 +88,7 @@ const getSignleAndAllContact = async (contactId) => {
     }
     return contact;
   } else {
-    const getAllContact = await Contact.find();
-    if (getAllContact.length === 0) {
-      throw new apiError(404, "Contact is empty");
-    }
+    const getAllContact = await Contact.find({});
     return getAllContact;
   }
 };

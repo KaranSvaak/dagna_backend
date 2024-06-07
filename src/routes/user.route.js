@@ -17,6 +17,7 @@ import {
   changeCurrentUserPassword,
   updateUserProfile,
   updateUserAvatar,
+  updateUserRole,
 } from "../controllers/user.controller.js";
 
 const user_route = Router();
@@ -37,6 +38,7 @@ user_route.get("/user-profile", getSingleAndAllUserProfile);
 
 //Change User status (isActive)
 user_route.patch('/update-status/:userId', updateUserStatus);
+user_route.patch('/update-role/:userId', updateUserRole);
 
 //Update User
 user_route.patch("/update/:id",

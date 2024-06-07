@@ -15,6 +15,7 @@ blog_route.post(
 );
 
 blog_route.get("/get-all-blogs", blogController.getUploadedBlog);
+blog_route.get("/get-blog/:blogId", blogController.getSingleBlog);
 
 blog_route.put("/update-blog", 
 fileAndDocUpload("blogImage", "pdfFileForBlog").fields([

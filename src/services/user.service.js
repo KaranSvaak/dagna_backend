@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import { apiResponse } from "../utils/apiResponse.js";
 import { apiError } from "../utils/apiError.js";
 import { uploadOnCloudinary, deleteOnCloudinary } from "../utils/cloudinary.js";
-import { validateEmail, validatePassword } from "../helper/helper.functions.js";
+import { validateEmail, validatePassword } from "../helpers/helper.methods.js";
 import { sendEmail } from "../utils/send.email.js";
 
 //Generate Access and Refresh Tokens
@@ -30,7 +30,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 //Register User
 const registerUser = async (userDetails) => {
   //TODO: Register a new User
-  const { fullName, email, password, confirmedPassword, phoneNumber, role } =
+  const { fullName, email, password, confirmedPassword, phoneNumber } =
     userDetails;
 
   if (!fullName || !email || !password || !confirmedPassword || !phoneNumber) {
@@ -73,8 +73,7 @@ const registerUser = async (userDetails) => {
     email,
     password,
     confirmedPassword,
-    phoneNumber,
-    role,
+    phoneNumber
   });
 
   const createdUser = await User.findById(user._id).select(
@@ -133,7 +132,7 @@ const loginUser = async (loginDetails) => {
     user._id,
   );
 
-  const loggedInUser = await User.findById(user._id).select(
+  const loggedInUser = await User.findById(user._id).populate("role").select(
     "-password -confirmedPassword -refreshToken",
   );
 
@@ -186,7 +185,7 @@ const forgetPassword = async (forgetDetails) => {
   console.log("reset token", resetToken);
 
   const subject = `Dagna De Reset Password`;
-  const resetUrl = `${process.env.CLIENT_URL}/#/reset-password/${resetToken}`;
+  const resetUrl = `${process.env.IONOS_CLIENT_URL}/#/reset-password/${resetToken}`;
 
   const resetMessageAndLink = `Click on the link to reset your password. ${resetUrl}. If you 
   have not request then ignore it`;
@@ -270,7 +269,7 @@ const getSingleAndAllUserProfile = async (userId) => {
     }
     return fetchedSingleUser;
   } else {
-    const fetchedAllUsers = await User.find().select(
+    const fetchedAllUsers = await User.find().populate("role").select(
       "-password -confirmedPassword -refreshToken",
     );
     if (fetchedAllUsers.length == 0) {
@@ -318,8 +317,42 @@ const updateUserStatus = async (body, userId) => {
   return updatedUserStatus;
 };
 
+const updateUserRole = async (body, userId) => {
+  // Validate user ID format
+  if (!isValidObjectId(userId)) {
+    throw new apiError(400, "Invalid UserId Format");
+  }
+
+  // Find the user by ID and select the isActive field
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new apiError(400, "User not found");
+  }
+
+  
+
+  // Ensure only isActive property is allowed for updation
+  if (!body.hasOwnProperty("role")) {
+    throw new apiError(400, "Only role property for updation is allowed");
+  }
+
+  // Update the user's isActive property
+  const updatedUserRole = await User.findOneAndUpdate(
+    { _id: userId },
+    { $set: { role: body.role } },
+    { new: true },
+  );
+
+  // Check if user status was successfully updated
+  if (!updatedUserRole) {
+    throw new apiError(400, "Role could not be changed");
+  }
+
+  return updatedUserRole;
+};
+
 //Update User info
-const updateUserProfile = async (userDetails, UserId, userAvatarLocalPath) => {
+const updateUserProfile = async (userDetails, UserId, userAvatarLocalPath=null) => {
   // TODO: Update User - FullName, Email and Avatar,
   // Ensure userDetails is provided and is an object
 
@@ -412,14 +445,6 @@ const deleteUser = async (userId) => {
   const findUser = await User.findById({ _id: userId });
   if (!findUser) {
     throw new apiError(400, "User not found");
-  }
-  const userDeletedOnCloudinary = await deleteOnCloudinary(
-    findUser.avatar[0].public_id,
-    "image",
-  );
-
-  if (!userDeletedOnCloudinary) {
-    throw new apiError(400, "User could not deleted on cloudinary");
   }
 
   const deletedUser = await User.findByIdAndDelete(userId);
@@ -573,4 +598,5 @@ export default {
   refreshAccessToken,
   changeCurrentUserPassword,
   updateUserAvatar,
+  updateUserRole
 };
