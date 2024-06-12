@@ -47,7 +47,7 @@ const createContact = async (contactDetails) => {
   `;
 
   // Send the email for new contact user
-  await sendEmail('info@dagna.de', subject, adminMessage);
+  await sendEmail('maintenance@dagna.de', subject, adminMessage);
 
   // Constructing the email message for User
   const userSubject = "Thank you for contacting us!";
