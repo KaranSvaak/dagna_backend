@@ -15,6 +15,7 @@ blog_route.post(
 );
 
 blog_route.get("/get-all-blogs", blogController.getUploadedBlog);
+
 blog_route.get("/get-blog/:blogId", blogController.getSingleBlog);
 
 blog_route.put("/update-blog", 
@@ -23,6 +24,7 @@ fileAndDocUpload("blogImage", "pdfFileForBlog").fields([
   { name: "pdfFileForBlog", maxCount: 1 },
 ]),
 blogController.updateUploadedBlog)
+
 
 blog_route.delete("/delete-blog/:blogId", blogController.deleteUploadedBlog);
 
