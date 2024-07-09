@@ -1,5 +1,5 @@
 //Production database
-export const DB_NAME = "dagnade"
+// export const DB_NAME = "dagnade"
 
 //Development database
-// export const DB_NAME = "dagnade_dev"
+export const DB_NAME = "dagnade_dev"
